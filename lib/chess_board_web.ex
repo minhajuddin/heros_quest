@@ -23,6 +23,7 @@ defmodule ChessBoardWeb do
 
       import Plug.Conn
       import ChessBoardWeb.Gettext
+      import Phoenix.LiveView.Controller
       alias ChessBoardWeb.Router.Helpers, as: Routes
     end
   end
@@ -41,6 +42,7 @@ defmodule ChessBoardWeb do
 
       import ChessBoardWeb.ErrorHelpers
       import ChessBoardWeb.Gettext
+      import Phoenix.LiveView.Helpers
       alias ChessBoardWeb.Router.Helpers, as: Routes
     end
   end
@@ -50,6 +52,7 @@ defmodule ChessBoardWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import Phoenix.LiveView.Router
     end
   end
 

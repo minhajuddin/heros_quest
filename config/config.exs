@@ -12,6 +12,9 @@ config :chess_board,
 
 # Configures the endpoint
 config :chess_board, ChessBoardWeb.Endpoint,
+live_view: [
+  signing_salt: "Q0P18rYr5Lj05xnmDkP1gGrL99yr8gtR6LA9O9"
+],
   url: [host: "localhost"],
   secret_key_base: "Q0P18rYr5Lj05xnmDkP1gGrL99yr8gtR6LA9O9PHZ6qNtGz/ZlV81czaWN+Q/YVR",
   render_errors: [view: ChessBoardWeb.ErrorView, accepts: ~w(html json)],
