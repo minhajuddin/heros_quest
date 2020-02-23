@@ -8,8 +8,6 @@ defmodule ChessBoardWeb.GameLive do
     <%= @duration %> <br />
       <div class="board">
         <%= for y <- 0..(@rows-1), x <- 0..(@cols-1) do %>
-          <%= render_tile({x, y}, @my_coords, @player_coords) %>
-
           <div class="col" style="background-color: <%= color({x, y}, @my_coords, @player_coords[{x, y}]) %>">
             <%= "#{inspect({x, y})}" %>
           <%= (@player_coords[{x, y}] || []) |> Enum.map(fn {name, _alive} -> name end) |> Enum.join(", ")%>
@@ -25,12 +23,6 @@ defmodule ChessBoardWeb.GameLive do
     &nbsp;
     <button phx-click=player-attack>attack</button>
     """
-  end
-
-  defp render_tile(coords, my_coords, player_coords) do
-    color =
-      players = """
-      """
   end
 
   @empty_cell_color "#ffffff"
@@ -49,7 +41,14 @@ defmodule ChessBoardWeb.GameLive do
 
     socket = assign(socket, start_time: DateTime.utc_now(), player_pid: player_pid)
 
+    LiveMonitor.monitor(self(), __MODULE__, %{id: socket.id})
+
     {:ok, update_board(socket)}
+  end
+
+  def unmount(%{id: id}, _reason) do
+    IO.puts("view #{id} unmounted")
+    :ok
   end
 
   defp random_name(), do: :crypto.strong_rand_bytes(8) |> Base.url_encode64(padding: false)
@@ -66,6 +65,11 @@ defmodule ChessBoardWeb.GameLive do
   def handle_event("player-attack", _value, socket) do
     Game.attack(socket.assigns.player_pid)
     {:noreply, update_board(socket)}
+  end
+
+  def handle_event(event, _value, socket) do
+    IO.inspect(event, label: "PHX-EVENT")
+    {:noreply, socket}
   end
 
   def parse_direction(direction) do
@@ -100,5 +104,29 @@ defmodule ChessBoardWeb.GameLive do
       true ->
         "#{duration} seconds"
     end
+  end
+end
+
+defmodule LiveMonitor do
+  use GenServer
+
+  def monitor(pid, view_module, meta) do
+    GenServer.call(pid, {:monitor, pid, view_module, meta})
+  end
+
+  def init(_) do
+    {:ok, %{views: %{}}}
+  end
+
+  def handle_call({:monitor, pid, view_module}, _, %{views: views} = state) do
+    Process.monitor(pid)
+    {:reply, :ok, %{state | views: Map.put(views, pid, {view_module, :meta})}}
+  end
+
+  def handle_info({:DOWN, _ref, :process, pid, reason}, state) do
+    {{module, meta}, new_views} = Map.pop(state.views)
+    # should wrap in isolated task or rescue from exception
+    module.unmount(reason, meta)
+    {:noreply, %{state | views: new_views}}
   end
 end

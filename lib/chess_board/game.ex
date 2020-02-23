@@ -83,7 +83,5 @@ defmodule ChessBoard.Game do
 
   def layout(game \\ __MODULE__) do
     GenServer.call(game, :layout)
-    # {{rows, cols}, player_coords} = GenServer.call(game, :player_coords)
-    # for x <- 0..cols, y <- 0..rows, do: player_coords[{x, y}] || :blank
   end
 end
