@@ -5,12 +5,9 @@ defmodule ChessBoard.Game do
 
   defstruct rows: 8, cols: 8, players: %{}
 
-  def add_player(%__MODULE__{} = board, name) do
-    Map.put(board.players, name, true)
-  end
-
-  def start_link do
-    GenServer.start_link(__MODULE__, [])
+  def start_link(opts) do
+    name = opts[:name] || __MODULE__
+    GenServer.start_link(__MODULE__, [], name: name)
   end
 
   # Server
@@ -46,15 +43,12 @@ defmodule ChessBoard.Game do
   end
 
   # Client
-  # move player
-  def move_player(name, direction) do
-  end
 
-  def attack(game, player_pid) do
+  def attack(game \\ __MODULE__, player_pid) do
     GenServer.call(game, {:attack, player_pid})
   end
 
-  def join(game, name) do
+  def join(game \\ __MODULE__, name) do
     GenServer.call(game, {:join, name})
   end
 end

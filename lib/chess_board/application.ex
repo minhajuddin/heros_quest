@@ -11,7 +11,8 @@ defmodule ChessBoard.Application do
       # Start the Ecto repository
       ChessBoard.Repo,
       # Start the endpoint when the application starts
-      ChessBoardWeb.Endpoint
+      ChessBoardWeb.Endpoint,
+      ChessBoard.Game
       # Starts a worker by calling: ChessBoard.Worker.start_link(arg)
       # {ChessBoard.Worker, arg},
     ]
