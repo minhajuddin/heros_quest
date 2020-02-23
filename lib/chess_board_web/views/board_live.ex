@@ -1,4 +1,4 @@
-defmodule ChessBoardWeb.BoardLive do
+defmodule ChessBoardWeb.GameLive do
   use Phoenix.LiveView
 
   def render(assigns) do
@@ -39,10 +39,10 @@ defmodule ChessBoardWeb.BoardLive do
 
     cond do
       duration > 60 * 60 ->
-        "#{DateTime.diff(DateTime.utc_now(), start_time, :hours)} hours"
+        "#{div(duration, 60 * 60)} hours"
 
       duration > 60 ->
-        "#{DateTime.diff(DateTime.utc_now(), start_time, :minutes)} minutes"
+        "#{div(duration, 60)} minutes"
 
       true ->
         "#{duration} seconds"
