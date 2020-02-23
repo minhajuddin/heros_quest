@@ -5,7 +5,7 @@ defmodule ChessBoard.Player do
 
   defstruct name: "", coords: {0, 0}, alive: true, game_pid: nil
 
-  def start_link(name, game_pid) do
+  def start_link(name, game_pid \\ Game) do
     GenServer.start_link(__MODULE__, %__MODULE__{name: name, game_pid: game_pid})
   end
 

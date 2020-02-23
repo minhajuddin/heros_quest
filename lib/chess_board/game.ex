@@ -3,7 +3,7 @@ defmodule ChessBoard.Game do
 
   alias ChessBoard.Player
 
-  defstruct rows: 8, cols: 8, players: %{}
+  defstruct rows: 10, cols: 10, players: %{}
 
   def start_link(opts) do
     name = opts[:name] || __MODULE__
@@ -21,6 +21,19 @@ defmodule ChessBoard.Game do
     {:reply, random_coords, game}
   end
 
+  def handle_call({:find_or_create_player, name}, {from, _ref}, game) do
+    player = game.players[name]
+
+    {:ok, player} =
+      if player do
+        {:ok, player}
+      else
+        Player.start_link(name, self())
+      end
+
+    {:reply, player, game}
+  end
+
   def handle_call({:attack, player_pid}, _from, game) do
     kill_count =
       player_pid
@@ -29,6 +42,18 @@ defmodule ChessBoard.Game do
       |> Enum.count()
 
     {:reply, kill_count, game}
+  end
+
+  def handle_call(:layout, _from, game) do
+    player_coords =
+      game.players
+      |> Enum.reduce(%{}, fn {name, player_pid}, acc ->
+        coords = Player.get_coords(player_pid)
+        players_at_coords = [name | acc[coords] || []]
+        Map.put(acc, coords, players_at_coords)
+      end)
+
+    {:reply, {{game.rows, game.cols}, player_coords}, game}
   end
 
   defp players_in_reach(attacker_pid, game) do
@@ -50,5 +75,15 @@ defmodule ChessBoard.Game do
 
   def join(game \\ __MODULE__, name) do
     GenServer.call(game, {:join, name})
+  end
+
+  def find_or_create_player(game \\ __MODULE__, name) do
+    GenServer.call(game, {:find_or_create_player, name})
+  end
+
+  def layout(game \\ __MODULE__) do
+    GenServer.call(game, :layout)
+    # {{rows, cols}, player_coords} = GenServer.call(game, :player_coords)
+    # for x <- 0..cols, y <- 0..rows, do: player_coords[{x, y}] || :blank
   end
 end
