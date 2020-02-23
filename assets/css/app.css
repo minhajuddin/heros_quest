@@ -2,3 +2,15 @@
 
 @import "./phoenix.css";
 @import "../../deps/phoenix_live_view/assets/css/live_view.css";
+
+.board {
+  display: flex;
+  width: 500px;
+  flex-wrap: wrap;
+}
+.col {
+  flex: 0 0 10%;
+  height: 50px;
+  width: 50px;
+  /*border: solid 1px #eee;*/
+}

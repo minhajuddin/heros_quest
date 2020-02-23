@@ -5,8 +5,15 @@ defmodule ChessBoardWeb.ThermostatLive do
     ~L"""
     <%= @time %> <br />
     Current temperature: <%= @temperature %>
+      <div class="board">
+        <%= for _ <- 1..100 do %>
+          <div class="col" style="background-color: <%=color(@time) %>"></div>
+        <% end %>
+      </div>
     """
   end
+
+  def color(_time), do: Enum.random(~w[red black white blue green])
 
   def mount(_params, %{}, socket) do
      if connected?(socket), do: :timer.send_interval(1000, self(), :tick)
