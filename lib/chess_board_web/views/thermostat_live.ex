@@ -16,7 +16,7 @@ defmodule ChessBoardWeb.ThermostatLive do
   def color(_time), do: Enum.random(~w[red black white blue green])
 
   def mount(_params, %{}, socket) do
-     if connected?(socket), do: :timer.send_interval(1000, self(), :tick)
+    if connected?(socket), do: :timer.send_interval(1000, self(), :tick)
     {:ok, update(socket)}
   end
 
@@ -26,7 +26,8 @@ defmodule ChessBoardWeb.ThermostatLive do
 
   defp update(socket) do
     temperature = :crypto.rand_uniform(80, 100)
-    time = DateTime.utc_now |> DateTime.to_iso8601
+    time = DateTime.utc_now() |> DateTime.to_iso8601()
+
     socket
     |> assign(:temperature, temperature)
     |> assign(:time, time)

@@ -19,6 +19,7 @@ defmodule ChessBoardWeb.Router do
 
     get "/", PageController, :index
     live "/thermostat", ThermostatLive
+    live "/board", BoardLive
   end
 
   # Other scopes may use custom stacks.
