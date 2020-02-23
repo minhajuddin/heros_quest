@@ -8,8 +8,11 @@ defmodule ChessBoardWeb.GameLive do
     <%= @duration %> <br />
       <div class="board">
         <%= for y <- 0..(@rows-1), x <- 0..(@cols-1) do %>
+          <%= render_tile({x, y}, @my_coords, @player_coords) %>
+
           <div class="col" style="background-color: <%= color({x, y}, @my_coords, @player_coords[{x, y}]) %>">
-            <%= "{#{x}, #{y}}" %> <%= @player_coords[{x, y}] %>
+            <%= "#{inspect({x, y})}" %>
+          <%= (@player_coords[{x, y}] || []) |> Enum.map(fn {name, _alive} -> name end) |> Enum.join(", ")%>
           </div>
         <% end %>
       </div>
@@ -18,15 +21,26 @@ defmodule ChessBoardWeb.GameLive do
     <button phx-click=player-move phx-value-direction="up">up</button>
     <button phx-click=player-move phx-value-direction="down">down</button>
     <button phx-click=player-move phx-value-direction="right">right</button>
+    &nbsp;
+    &nbsp;
+    <button phx-click=player-attack>attack</button>
     """
   end
 
+  defp render_tile(coords, my_coords, player_coords) do
+    color =
+      players = """
+      """
+  end
+
   @empty_cell_color "#ffffff"
-  @my_color "#2ECC40"
-  @other_players_color "#FF851B"
+  @my_alive_color "#2ECC40"
+  @my_dead_color "#FF4136"
+  @other_player_color "#FF851B"
   defp color(_coords, _my_coords, nil), do: @empty_cell_color
-  defp color(coords, coords, _), do: @my_color
-  defp color(_, _, _), do: @other_players_color
+  defp color(coords, coords, [{_, true} | _]), do: @my_alive_color
+  defp color(coords, coords, _), do: @my_dead_color
+  defp color(_, _, _), do: @other_player_color
 
   def mount(params, %{}, socket) do
     player_pid = Game.find_or_create_player(params["name"] || random_name())
@@ -46,6 +60,11 @@ defmodule ChessBoardWeb.GameLive do
 
   def handle_event("player-move", value, socket) do
     Player.move(socket.assigns.player_pid, parse_direction(value["direction"]))
+    {:noreply, update_board(socket)}
+  end
+
+  def handle_event("player-attack", _value, socket) do
+    Game.attack(socket.assigns.player_pid)
     {:noreply, update_board(socket)}
   end
 

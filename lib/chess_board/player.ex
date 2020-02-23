@@ -45,12 +45,20 @@ defmodule ChessBoard.Player do
     {:reply, player.coords, player}
   end
 
+  def handle_call(:get_state, _from, player) do
+    {:reply, {player.coords, player.alive}, player}
+  end
+
   def kill(player_pid) do
     GenServer.call(player_pid, :kill)
   end
 
   def get_coords(player_pid) do
     GenServer.call(player_pid, :get_coords)
+  end
+
+  def get_state(player_pid) do
+    GenServer.call(player_pid, :get_state)
   end
 
   def move(player_pid, direction) do

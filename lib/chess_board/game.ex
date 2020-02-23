@@ -48,8 +48,8 @@ defmodule ChessBoard.Game do
     player_coords =
       game.players
       |> Enum.reduce(%{}, fn {name, player_pid}, acc ->
-        coords = Player.get_coords(player_pid)
-        players_at_coords = [name | acc[coords] || []]
+        {coords, alive} = Player.get_state(player_pid)
+        players_at_coords = [{name, alive} | acc[coords] || []]
         Map.put(acc, coords, players_at_coords)
       end)
 
