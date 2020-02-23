@@ -41,8 +41,6 @@ defmodule ChessBoardWeb.GameLive do
 
     socket = assign(socket, start_time: DateTime.utc_now(), player_pid: player_pid)
 
-    LiveMonitor.monitor(self(), __MODULE__, %{id: socket.id})
-
     {:ok, update_board(socket)}
   end
 
@@ -104,29 +102,5 @@ defmodule ChessBoardWeb.GameLive do
       true ->
         "#{duration} seconds"
     end
-  end
-end
-
-defmodule LiveMonitor do
-  use GenServer
-
-  def monitor(pid, view_module, meta) do
-    GenServer.call(pid, {:monitor, pid, view_module, meta})
-  end
-
-  def init(_) do
-    {:ok, %{views: %{}}}
-  end
-
-  def handle_call({:monitor, pid, view_module}, _, %{views: views} = state) do
-    Process.monitor(pid)
-    {:reply, :ok, %{state | views: Map.put(views, pid, {view_module, :meta})}}
-  end
-
-  def handle_info({:DOWN, _ref, :process, pid, reason}, state) do
-    {{module, meta}, new_views} = Map.pop(state.views)
-    # should wrap in isolated task or rescue from exception
-    module.unmount(reason, meta)
-    {:noreply, %{state | views: new_views}}
   end
 end

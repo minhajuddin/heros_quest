@@ -46,7 +46,7 @@ defmodule ChessBoard.Player do
   end
 
   def handle_call(:get_state, _from, player) do
-    {:reply, {player.coords, player.alive}, player}
+    {:reply, player, player}
   end
 
   def kill(player_pid) do

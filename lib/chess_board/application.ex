@@ -9,7 +9,7 @@ defmodule ChessBoard.Application do
     # List all child processes to be supervised
     children = [
       # Start the Ecto repository
-      ChessBoard.Repo,
+      # ChessBoard.Repo,
       # Start the endpoint when the application starts
       ChessBoardWeb.Endpoint,
       ChessBoard.Game

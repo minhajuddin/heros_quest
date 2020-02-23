@@ -3,7 +3,14 @@ defmodule ChessBoard.Game do
 
   alias ChessBoard.Player
 
-  defstruct rows: 10, cols: 10, players: %{}
+  defstruct rows: 10,
+            cols: 10,
+            players: %{},
+            wall: for(x <- 0..9, y <- 0..9, x == 0 || y == 0 || x == 9 || y == 9, do: {x, y})
+
+  defmodule RenderState do
+    defstruct [:rows, :cols, :wall, :players]
+  end
 
   def start_link(opts) do
     name = opts[:name] || __MODULE__
@@ -48,12 +55,18 @@ defmodule ChessBoard.Game do
     player_coords =
       game.players
       |> Enum.reduce(%{}, fn {name, player_pid}, acc ->
-        {coords, alive} = Player.get_state(player_pid)
+        player = Player.get_state(player_pid)
         players_at_coords = [{name, alive} | acc[coords] || []]
         Map.put(acc, coords, players_at_coords)
       end)
 
-    {:reply, {{game.rows, game.cols}, player_coords}, game}
+    {:reply,
+     %RenderState{
+       rows: game.rows,
+       cols: game.cols,
+       wall: game.wall,
+       players: player_coords
+     }, game}
   end
 
   defp players_in_reach(attacker_pid, game) do
