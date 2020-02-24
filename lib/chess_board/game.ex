@@ -6,10 +6,33 @@ defmodule ChessBoard.Game do
   defstruct rows: 10,
             cols: 10,
             players: %{},
-            wall: for(x <- 0..9, y <- 0..9, x == 0 || y == 0 || x == 9 || y == 9, do: {x, y})
+            wall:
+              for(
+                x <- 0..9,
+                y <- 0..9,
+                x == 0 || y == 0 || x == 9 || y == 9,
+                do: {{x, y}, true},
+                into: %{}
+              )
+
+  defmodule Tile do
+    defstruct [:coords, :players, :walkable?, :color]
+  end
 
   defmodule RenderState do
     defstruct [:rows, :cols, :wall, :players]
+
+    def render(%__MODULE__{} = state) do
+      players_map = state.players |> Enum.group_by(fn p -> p.coords end)
+
+      for x <- 0..(state.rows - 1), y <- 0..(state.cols - 1) do
+        %Tile{
+          coords: {x, y},
+          players: players_map[{x, y}],
+          walkable?: !!state.wall[{x, y}]
+        }
+      end
+    end
   end
 
   def start_link(opts) do
@@ -52,20 +75,16 @@ defmodule ChessBoard.Game do
   end
 
   def handle_call(:layout, _from, game) do
-    player_coords =
+    players =
       game.players
-      |> Enum.reduce(%{}, fn {name, player_pid}, acc ->
-        player = Player.get_state(player_pid)
-        players_at_coords = [{name, alive} | acc[coords] || []]
-        Map.put(acc, coords, players_at_coords)
-      end)
+      |> Enum.map(fn {_name, player_pid} -> Player.get_state(player_pid) end)
 
     {:reply,
      %RenderState{
        rows: game.rows,
        cols: game.cols,
        wall: game.wall,
-       players: player_coords
+       players: players
      }, game}
   end
 

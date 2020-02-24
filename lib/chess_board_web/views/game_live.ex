@@ -77,7 +77,7 @@ defmodule ChessBoardWeb.GameLive do
   defp update_board(socket) do
     current_time = DateTime.utc_now()
 
-    {{rows, cols}, player_coords} = Game.layout()
+    tiles = Game.layout()
 
     assign(socket,
       cols: cols,
