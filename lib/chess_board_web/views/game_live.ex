@@ -5,11 +5,13 @@ defmodule ChessBoardWeb.GameLive do
 
   def render(assigns) do
     ~L"""
+    Playing as @<%= @name %>
     <%= @duration %> <br />
       <div class="board">
         <%= for tile <- @tiles do %>
-          <div class="col" style="background-color: blue">
-            <%= "#{inspect(tile.coords)}" %>
+          <div class="col <%= color_class(tile, @name) %>" title="Tile <%= inspect tile.coords %> Players: <%= player_names(tile) %>">
+          <span class='player-names'> <%= player_count_badge(tile.players) %>
+         <%= tile_name(tile, @name) %></span>
           </div>
         <% end %>
       </div>
@@ -24,21 +26,64 @@ defmodule ChessBoardWeb.GameLive do
     """
   end
 
-  @empty_cell_color "#ffffff"
-  @my_alive_color "#2ECC40"
-  @my_dead_color "#FF4136"
-  @other_player_color "#FF851B"
-  defp color(_coords, _my_coords, nil), do: @empty_cell_color
-  defp color(coords, coords, [{_, true} | _]), do: @my_alive_color
-  defp color(coords, coords, _), do: @my_dead_color
-  defp color(_, _, _), do: @other_player_color
+  def player_count_badge(nil), do: nil
+  def player_count_badge([_]), do: nil
+  def player_count_badge(players), do: "(#{Enum.count(players)})"
+
+  defp tile_name(%{players: nil}, _my_name), do: nil
+
+  defp tile_name(tile, my_name) do
+    if Enum.any?(tile.players, &(&1.name == my_name)) do
+      my_name
+    else
+      tile.players
+      |> List.wrap()
+      |> Enum.map(fn x -> x.name end)
+      |> Enum.join(", ")
+    end
+  end
+
+  defp player_names(tile) do
+    tile.players
+    |> List.wrap()
+    |> Enum.map(fn x -> x.name end)
+    |> Enum.join(", ")
+  end
+
+  defp color_class(%{walkable?: false}, _my_name), do: "wall-tile"
+  defp color_class(%{players: nil}, _my_name), do: "empty-tile"
+
+  defp color_class(%{players: players}, my_name) do
+    my_player = Enum.find(players, &(&1.name == my_name))
+
+    cond do
+      my_player && my_player.alive -> "my-tile"
+      my_player -> "dead-tile"
+      Enum.any?(players, &(!&1.alive)) -> "dead-tile"
+      true -> "enemy-tile"
+    end
+  end
+
+  # @empty_cell_color "#ffffff"
+  # @my_alive_color "#2ECC40"
+  # @my_dead_color "#FF4136"
+  # @other_player_color "#FF851B"
+  # defp color(_coords, _my_coords, nil), do: @empty_cell_color
+  # defp color(coords, coords, [{_, true} | _]), do: @my_alive_color
+  # defp color(coords, coords, _), do: @my_dead_color
+  # defp color(_, _, _), do: @other_player_color
 
   def mount(params, %{}, socket) do
     player_pid = Game.find_or_create_player(params["name"] || random_name())
 
     if connected?(socket), do: :timer.send_interval(1000, self(), :tick)
 
-    socket = assign(socket, start_time: DateTime.utc_now(), player_pid: player_pid)
+    socket =
+      assign(socket,
+        start_time: DateTime.utc_now(),
+        player_pid: player_pid,
+        name: Player.get_state(player_pid).name
+      )
 
     {:ok, update_board(socket)}
   end

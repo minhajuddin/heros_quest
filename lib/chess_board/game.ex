@@ -25,11 +25,11 @@ defmodule ChessBoard.Game do
     def render(%__MODULE__{} = state) do
       players_map = state.players |> Enum.group_by(fn p -> p.coords end)
 
-      for x <- 0..(state.rows - 1), y <- 0..(state.cols - 1) do
+      for y <- 0..(state.cols - 1), x <- 0..(state.rows - 1) do
         %Tile{
           coords: {x, y},
           players: players_map[{x, y}],
-          walkable?: !!state.wall[{x, y}]
+          walkable?: !state.wall[{x, y}]
         }
       end
     end

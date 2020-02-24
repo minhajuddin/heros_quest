@@ -13,4 +13,32 @@
   height: 50px;
   width: 50px;
   border: solid 1px #eee;
+  padding: 2px;
 }
+
+.wall-tile {
+  background-color: #222;
+  color: #eee;
+}
+
+.my-tile{
+  background-color: green;
+}
+
+.enemy-tile{
+  background-color: blue;
+  color: white;
+}
+
+.dead-tile{
+  background-color: red;
+}
+
+.player-names {
+  z-index: 1000;
+}
+
+.empty-tile{
+  background-color: white;
+}
+
