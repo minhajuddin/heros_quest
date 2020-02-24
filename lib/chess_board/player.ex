@@ -38,7 +38,11 @@ defmodule ChessBoard.Player do
         :right -> {x + 1, y}
       end
 
-    {:reply, coords, %{player | coords: coords}}
+    if Game.walkable?(player.game_pid, coords) do
+      {:reply, coords, %{player | coords: coords}}
+    else
+      {:reply, player.coords, player}
+    end
   end
 
   def handle_call(:get_coords, _from, player) do

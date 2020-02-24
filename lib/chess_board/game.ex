@@ -3,6 +3,12 @@ defmodule ChessBoard.Game do
 
   alias ChessBoard.Player
 
+  @custom_wall %{
+    {3, 4} => true,
+    {4, 4} => true,
+    {7, 4} => true,
+    {7, 5} => true
+  }
   defstruct rows: 10,
             cols: 10,
             players: %{},
@@ -14,6 +20,7 @@ defmodule ChessBoard.Game do
                 do: {{x, y}, true},
                 into: %{}
               )
+              |> Map.merge(@custom_wall)
 
   defmodule Tile do
     defstruct [:coords, :players, :walkable?, :color]
@@ -88,6 +95,10 @@ defmodule ChessBoard.Game do
      }, game}
   end
 
+  def handle_call({:walkable?, coords}, _from, game) do
+    {:reply, !game.wall[coords], game}
+  end
+
   defp players_in_reach(attacker_pid, game) do
     coords = Player.get_coords(attacker_pid)
 
@@ -115,5 +126,9 @@ defmodule ChessBoard.Game do
 
   def layout(game \\ __MODULE__) do
     GenServer.call(game, :layout)
+  end
+
+  def walkable?(game \\ __MODULE__, coords) do
+    GenServer.call(game, {:walkable?, coords})
   end
 end
