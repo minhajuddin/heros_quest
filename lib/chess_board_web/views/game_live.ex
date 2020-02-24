@@ -7,10 +7,9 @@ defmodule ChessBoardWeb.GameLive do
     ~L"""
     <%= @duration %> <br />
       <div class="board">
-        <%= for y <- 0..(@rows-1), x <- 0..(@cols-1) do %>
-          <div class="col" style="background-color: <%= color({x, y}, @my_coords, @player_coords[{x, y}]) %>">
-            <%= "#{inspect({x, y})}" %>
-          <%= (@player_coords[{x, y}] || []) |> Enum.map(fn {name, _alive} -> name end) |> Enum.join(", ")%>
+        <%= for tile <- @tiles do %>
+          <div class="col" style="background-color: blue">
+            <%= "#{inspect(tile.coords)}" %>
           </div>
         <% end %>
       </div>
@@ -77,13 +76,10 @@ defmodule ChessBoardWeb.GameLive do
   defp update_board(socket) do
     current_time = DateTime.utc_now()
 
-    tiles = Game.layout()
+    tiles = Game.layout() |> Game.RenderState.render()
 
     assign(socket,
-      cols: cols,
-      rows: rows,
-      player_coords: player_coords,
-      my_coords: Player.get_coords(socket.assigns.player_pid),
+      tiles: tiles,
       duration: duration(socket.assigns.start_time),
       current_time: current_time
     )
