@@ -59,7 +59,27 @@ defmodule ChessBoard.Game do
 
   # Server
   def init(_) do
+    :timer.send_interval(5000, self(), :reset_killed_players)
     {:ok, %__MODULE__{}}
+  end
+
+  def handle_info(:reset_killed_players, game) do
+    game.players
+    |> Enum.each(fn {_, p} ->
+      Player.reset_if_dead(p, random_coords(game))
+    end)
+
+    {:noreply, game}
+  end
+
+  defp random_coords(game) do
+    coords = {:rand.uniform(game.cols) - 1, :rand.uniform(game.rows) - 1}
+
+    if game.wall[coords] do
+      random_coords(game)
+    else
+      coords
+    end
   end
 
   def handle_call({:join, name}, {from, _ref}, game) do

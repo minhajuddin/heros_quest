@@ -27,6 +27,14 @@ defmodule ChessBoard.Player do
     {:reply, within_reach, player}
   end
 
+  def handle_call({:reset_if_dead, coords}, _from, %__MODULE__{coords: {px, py}} = player) do
+    if player.alive do
+      {:reply, false, player}
+    else
+      {:reply, true, %{player | alive: true, coords: coords}}
+    end
+  end
+
   def handle_call({:move, direction}, _from, player) do
     {x, y} = player.coords
 
@@ -71,5 +79,9 @@ defmodule ChessBoard.Player do
 
   def within_reach?(player_pid, coords) do
     GenServer.call(player_pid, {:within_reach?, coords})
+  end
+
+  def reset_if_dead(player_pid, coords) do
+    GenServer.call(player_pid, {:reset_if_dead, coords})
   end
 end
