@@ -14,7 +14,6 @@ config :chess_board, ChessBoardWeb.Endpoint,
   url: [scheme: "https", host: "heros-quest.herokuapp.com", port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]]
 
-
 # Do not print debug messages in production
 config :logger, level: :info
 

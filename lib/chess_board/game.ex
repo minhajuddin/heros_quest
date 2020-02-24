@@ -88,7 +88,7 @@ defmodule ChessBoard.Game do
     {:reply, random_coords, game}
   end
 
-  def handle_call({:find_or_create_player, name}, {from, _ref}, game) do
+  def handle_call({:find_or_create_player, name}, _from, game) do
     player = game.players[name]
 
     {:ok, player} =
@@ -133,11 +133,11 @@ defmodule ChessBoard.Game do
     coords = Player.get_coords(attacker_pid)
 
     game.players
-    |> Enum.filter(fn {name, player_pid} ->
+    |> Enum.filter(fn {_name, player_pid} ->
       player_pid != attacker_pid &&
         Player.within_reach?(player_pid, coords)
     end)
-    |> Enum.map(fn {name, pid} -> pid end)
+    |> Enum.map(fn {_name, pid} -> pid end)
   end
 
   # Client

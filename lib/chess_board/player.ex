@@ -27,7 +27,7 @@ defmodule ChessBoard.Player do
     {:reply, within_reach, player}
   end
 
-  def handle_call({:reset_if_dead, coords}, _from, %__MODULE__{coords: {px, py}} = player) do
+  def handle_call({:reset_if_dead, coords}, _from, %__MODULE__{} = player) do
     if player.alive do
       {:reply, false, player}
     else
@@ -35,7 +35,9 @@ defmodule ChessBoard.Player do
     end
   end
 
-  def handle_call({:move, direction}, _from, %{alive: false} = player), do: {:reply, player.coords, player}
+  def handle_call({:move, _direction}, _from, %{alive: false} = player),
+    do: {:reply, player.coords, player}
+
   def handle_call({:move, direction}, _from, player) do
     {x, y} = player.coords
 
