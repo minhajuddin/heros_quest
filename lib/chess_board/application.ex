@@ -12,7 +12,8 @@ defmodule ChessBoard.Application do
       # ChessBoard.Repo,
       # Start the endpoint when the application starts
       ChessBoardWeb.Endpoint,
-      ChessBoard.Game
+      ChessBoard.Game,
+      ChessBoard.PlayerSup
       # Starts a worker by calling: ChessBoard.Worker.start_link(arg)
       # {ChessBoard.Worker, arg},
     ]

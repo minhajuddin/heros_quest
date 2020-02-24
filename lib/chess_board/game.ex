@@ -22,6 +22,16 @@ defmodule ChessBoard.Game do
               )
               |> Map.merge(@custom_wall)
 
+  def child_spec(opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [opts]},
+      shutdown: 5_000,
+      restart: :permanent,
+      type: :worker
+    }
+  end
+
   defmodule Tile do
     defstruct [:coords, :players, :walkable?, :color]
   end
@@ -65,7 +75,7 @@ defmodule ChessBoard.Game do
       if player do
         {:ok, player}
       else
-        Player.start_link(name, self())
+        ChessBoard.PlayerSup.start_child(name, self())
       end
 
     {:reply, player, game}
