@@ -12,26 +12,25 @@
   flex: 0 0 10%;
   height: 50px;
   width: 50px;
-  border: solid 1px #eee;
+  border: solid 1px #eeeeee;
   padding: 2px;
 }
 
 .wall-tile {
-  background-color: #222;
-  color: #eee;
+  background-color: #111111;
+  border: solid 1px #111111;
 }
 
 .my-tile{
-  background-color: green;
+  background-color: #2ECC40;
 }
 
 .enemy-tile{
-  background-color: blue;
-  color: white;
+  background-color: #0074D9;
 }
 
 .dead-tile{
-  background-color: red;
+  background-color: #FF4136;
 }
 
 .player-names {
