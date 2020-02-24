@@ -35,6 +35,7 @@ defmodule ChessBoard.Player do
     end
   end
 
+  def handle_call({:move, direction}, _from, %{alive: false} = player), do: {:reply, player.coords, player}
   def handle_call({:move, direction}, _from, player) do
     {x, y} = player.coords
 
